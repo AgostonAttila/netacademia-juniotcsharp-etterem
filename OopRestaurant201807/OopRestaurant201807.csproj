@@ -198,9 +198,11 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LocationsController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
     <Compile Include="Controllers\MenuItemsController.cs" />
+    <Compile Include="Controllers\TablesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -240,12 +242,22 @@
     <Compile Include="Migrations\201807171104579_set MenuItem.Category to required.Designer.cs">
       <DependentUpon>201807171104579_set MenuItem.Category to required.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807191023380_add Table and Location.cs" />
+    <Compile Include="Migrations\201807191023380_add Table and Location.Designer.cs">
+      <DependentUpon>201807191023380_add Table and Location.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807191030568_add Table.IsNonSmoking.cs" />
+    <Compile Include="Migrations\201807191030568_add Table.IsNonSmoking.Designer.cs">
+      <DependentUpon>201807191030568_add Table.IsNonSmoking.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Category.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\Location.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\MenuItem.cs" />
+    <Compile Include="Models\Table.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -320,6 +332,20 @@
     <Content Include="Views\Categories\Index.cshtml" />
     <Content Include="Views\Menu\Details.cshtml" />
     <Content Include="Views\Menu\Index.cshtml" />
+    <Content Include="Views\Locations\Create.cshtml" />
+    <Content Include="Views\Locations\Delete.cshtml" />
+    <Content Include="Views\Locations\Details.cshtml" />
+    <Content Include="Views\Locations\Edit.cshtml" />
+    <Content Include="Views\Locations\Index.cshtml" />
+    <Content Include="Views\Tables\Create.cshtml" />
+    <Content Include="Views\Tables\Delete.cshtml" />
+    <Content Include="Views\Tables\Details.cshtml" />
+    <Content Include="Views\Tables\Edit.cshtml" />
+    <Content Include="Views\Tables\Index.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\Location.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Location.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\Table.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Table.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -364,6 +390,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807171104579_set MenuItem.Category to required.resx">
       <DependentUpon>201807171104579_set MenuItem.Category to required.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807191023380_add Table and Location.resx">
+      <DependentUpon>201807191023380_add Table and Location.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807191030568_add Table.IsNonSmoking.resx">
+      <DependentUpon>201807191030568_add Table.IsNonSmoking.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

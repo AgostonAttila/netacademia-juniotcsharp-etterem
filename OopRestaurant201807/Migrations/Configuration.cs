@@ -1,5 +1,7 @@
 namespace OopRestaurant201807.Migrations
 {
+    using Microsoft.AspNet.Identity;
+    using Microsoft.AspNet.Identity.EntityFramework;
     using OopRestaurant201807.Models;
     using System;
     using System.Data.Entity;
@@ -29,9 +31,10 @@ namespace OopRestaurant201807.Migrations
             var category2 = new Category() { Name = "Hideg elõételek" };
             var category3 = new Category() { Name = "Meleg elõételek" };
 
-            context.Categories.AddOrUpdate(category1);
-            context.Categories.AddOrUpdate(category2);
-            context.Categories.AddOrUpdate(category3);
+
+            context.Categories.AddOrUpdate(x => x.Name, category1, category2, category3);
+            //context.Categories.AddOrUpdate(x => x.Name, category2);
+            //context.Categories.AddOrUpdate(x => x.Name, category3);
 
             //hozzuk létre az ételeket
             //Id Name    Description Price   Category_Id
@@ -42,7 +45,7 @@ namespace OopRestaurant201807.Migrations
             //8   Gundel Károly gulyáslevese 1910 NULL    3500    1
             //9   Szárított érlelt bélszín carpaccio  Öreg Trappista sajt, keserû levelek 5000    2
 
-            context.MenuItems.AddOrUpdate(new MenuItem()
+            context.MenuItems.AddOrUpdate(x => x.Name, new MenuItem()
             {
                 Name = "Tengeri hal trió",
                 Description = "Atlanti lazactatár, pácolt lazacfilé és tonhal lazackaviárral",
@@ -50,36 +53,36 @@ namespace OopRestaurant201807.Migrations
                 Category = category2
             });
 
-            context.MenuItems.AddOrUpdate(new MenuItem()
+            context.MenuItems.AddOrUpdate(x => x.Name, new MenuItem()
             {
                 Name = "Borjúesszencia",
-                Description = "Zöldséges gyöngytyúk galuska",
+                Description = "Zöldséges gyöngytyúk galuska (módosítva)",
                 Price = 4500,
                 Category = category1
             });
 
-            context.MenuItems.AddOrUpdate(new MenuItem()
+            context.MenuItems.AddOrUpdate(x => x.Name, new MenuItem()
             {
                 Name = "Szarvasgomba cappuccino",
                 Price = 4500,
                 Category = category1
             });
 
-            context.MenuItems.AddOrUpdate(new MenuItem()
+            context.MenuItems.AddOrUpdate(x => x.Name, new MenuItem()
             {
                 Name = "Hirtelen sült fogasderék illatos erdei gombákkal",
                 Price = 4500,
                 Category = category3
             });
 
-            context.MenuItems.AddOrUpdate(new MenuItem()
+            context.MenuItems.AddOrUpdate(x => x.Name, new MenuItem()
             {
                 Name = "Gundel Károly gulyáslevese 1910",
                 Price = 3500,
                 Category = category1
             });
 
-            context.MenuItems.AddOrUpdate(new MenuItem()
+            context.MenuItems.AddOrUpdate(x => x.Name, new MenuItem()
             {
                 Name = "Szárított érlelt bélszín carpaccio",
                 Description = "Öreg Trappista sajt, keserû levelek",
@@ -87,6 +90,130 @@ namespace OopRestaurant201807.Migrations
                 Category = category2
             });
 
+
+
+
+            //helyszínek feltöltése
+            var loc1 = new Location { Name = "Nemdohányzó terem", IsNonSmoking = true };
+            var loc2 = new Location { Name = "Dohányzó terem", IsNonSmoking = false };
+            var loc3 = new Location { Name = "Terasz", IsNonSmoking = false };
+            context.Locations.AddOrUpdate(x => x.Name, loc1, loc2, loc3);
+
+            context.Tables.AddOrUpdate(x => x.Name,
+                new Table { Name = "1. asztal", Location = loc1 },
+                new Table { Name = "2. asztal", Location = loc1 },
+                new Table { Name = "3. asztal", Location = loc2 },
+                new Table { Name = "4. asztal", Location = loc2 },
+                new Table { Name = "5. asztal", Location = loc3 },
+                new Table { Name = "6. asztal", Location = loc3 }
+            );
+
+            //cook, waiter, admin
+            // jogosultságcsoport rögzítése
+            AddRoleIfNotExists(context, "admin");
+            AddRoleIfNotExists(context, "cook");
+            AddRoleIfNotExists(context, "waiter");
+
+            //felhasználók rögzítése
+            AddUserIfNotExists(context, "gabor.plesz@gmail.com", "gabor.plesz@gmail.com", "admin,cook,waiter");
+            AddUserIfNotExists(context, "pincer@gmail.com", "pincer@gmail.com", "waiter");
+            AddUserIfNotExists(context, "szakacs@gmail.com", "szakacs@gmail.com", "cook");
+        }
+
+
+        /// <summary>
+        /// Felhasználócsoport rögzítése, ha még nem létezik
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="roleName"></param>
+        private void AddRoleIfNotExists(ApplicationDbContext context, string roleName)
+        {
+
+            //RoleStore: adatbázist író réteg
+            //RoleManager: az alkalmazás felé az egységes felület
+
+            var store = new RoleStore<IdentityRole>(context);
+            var manager = new RoleManager<IdentityRole>(store);
+
+            var roleExists= manager.FindByName(roleName);
+            if (roleExists==null)
+            { //nincs még ilyen, létre kell hoznunk
+                var role = new IdentityRole(roleName);
+                var result = manager.Create(role);
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception(string.Join(",", result.Errors));
+                }
+            }
+        }
+
+        /// <summary>
+        /// felhasználó rögzítése, ha még nem létezik
+        ///   figyelem: nem rögzítünk adatbázisba közvetlenül adatot, 
+        ///   hanem az Identity által kínált szolgáltatás(oka)t használjuk
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="userName"></param>
+        /// <param name="email"></param>
+        private static void AddUserIfNotExists(ApplicationDbContext context, string userName, string email, string roles)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = userName,
+                Email = email,
+            };
+
+            //UserStore: ez felel az adatok rögzítéséért
+            //UserManager: a programozási felület.
+            //context <- UserStore <- UserManager
+
+            var store = new UserStore<ApplicationUser>(context);
+            var manager = new ApplicationUserManager(store);
+
+            //ellenõrizni kell, hogy létezik-e már ilyen felhasználó?
+            var userExists = manager.FindByEmail(user.Email);
+            if (null == userExists)
+            { // még nincs ilyen felhasználó, rögzítsük
+              //itt megadjuk a felhasználó jelszavát, és 
+              //így az Identity generálja az adatbázisba írt HASH kódot
+                var result = manager.Create(user, "123456");
+                if (!result.Succeeded)
+                {
+
+                    ////a legrészletesebb megoldás
+                    //var errorMessage = "";
+                    //foreach (var error in result.Errors)
+                    //{
+                    //    if (string.IsNullOrEmpty(errorMessage))
+                    //    {
+                    //        errorMessage = error;
+                    //    }
+                    //    else
+                    //    {
+                    //        errorMessage = errorMessage + ", " + error;
+                    //    }
+                    //}
+
+                    ////elõzõ megoldás tömörítve
+                    //foreach (var error in result.Errors)
+                    //{
+                    //    //feltételes (ternáris) operátor használata
+                    //    errorMessage = errorMessage
+                    //        + (string.IsNullOrEmpty(errorMessage) ? "" : ",")
+                    //        + error;
+                    //}
+
+                    //a legtömörebb megoldás pedig a string osztály beépített Join föggvénye
+                    throw new Exception(string.Join(",", result.Errors));
+                }
+
+                //hozzárendelés jogosultságcsoportokhoz
+                foreach (var role in roles.Split(',')) //a vesszõ mentén szétszedjük a paramétert tömbre, amin végigsétálunk
+                {
+                    manager.AddToRole(user.Id, role);
+                }
+            }
         }
     }
 }

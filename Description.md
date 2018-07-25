@@ -554,5 +554,213 @@ SQL Server Profiler indítása: SQL Server management Studio\Tools\SQL Server Pr
 
 ### Kérdések
 - [X] az, hogy a MenuItem.Category kitöltése nem kötelező, ez vajon jó-e nekünk?
-- [ ] hogy lehet a felhasználókat rögzíteni a Seed-ben
-- [ ] hogy kell javítani a Seed-et ahhoz, hogy ne duplázza az adatokat
+- [X] hogy kell javítani a Seed-et ahhoz, hogy ne duplázza az adatokat
+- [X] hogy lehet a felhasználókat rögzíteni a Seed-ben
+
+Az ASP.NET Identity adatkezelése több rétegből áll:
+```
++-------------------------------------------------------------+
+|                                                             |
+|                                                             |
+|                                                             |
+|                                                             |
+| +-------------+   +--------------+  +-----------------+     |
+| |             |   |              |  |                 |     |
+| | Adatbázis   |   |  UserStore   |  | UserManager     | <------+
+| |             |   |              |  |                 |     |
+| |             |   |              |  |                 |     |
+| |             |   |         <-------------+           |     |
+| |             |   |              |  |                 |     |
+| |             |   |              |  |                 |     |
+| |      <----------------+        |  |                 |     |
+| |             |   |              |  |                 |     |
+| |             |   |              |  |                 |     |
+| |             |   |              |  |                 |     |
+| +-------------+   +--------------+  +-----------------+     |
+|                                                             |
+|                                                             |
+|                                                             |
+|                                                             |
+|                                                             |
++-------------------------------------------------------------+
+```
+
+- A UserStore felel az adatok karbantartásáért
+- A UserManager pedig az a felület, amit a programozó használhat
+
+
+### 11. feladat
+- [ ] Magyar nyelvű alkalmazást készítünk
+  - [X] Bejelentkező és regisztrációs oldal magyarítása
+  - [X] A menuItem idex oldal magyarítása
+  - [X] Alapértelmezett kezdőoldal legyen a Menu nézet
+- [X] a lenyíló mező alapértelmezett értéke Create esetén legyen egy ki nem választott érték.
+- [X] a lenyíló mező formázásának a javítása.
+
+```html
+<select data-val="true" 
+        data-val-number="The field CategoryId must be a number." 
+        data-val-required="The CategoryId field is required." 
+        htmlattributes="{ class = form-control }" 
+        id="CategoryId" name="CategoryId">
+    <option value="">- Válassz egy lehetőséget -</option>
+    <option value="1">Hideg előételek</option>
+    <option value="2">Levesek</option>
+    <option value="3">Meleg előételek</option>
+</select>
+````
+A hiba oka tehát az, hogy ez van
+```html
+   htmlattributes="{ class = form-control }" 
+```
+```html
+   class="form-control"
+```
+a megoldás az, hogy a paramétert az előző EDIT input generáló kifejezésről másoltuk, ahol **additionalViewData** paraméterként volt megadva. De a @Html.DropDownListFor() pedig **htmlAttributes** paramétert vár, ami más formátumú.
+
+### 12. feladat
+- [X] Asztalok és helyszínek modellje és megjelenítése
+- [X] DisplayTemplate: a Details nézet módosítását szeretném a Delete nézeten is megjeleníteni.
+  - [X] A \View\Shared\DisplayTemplates mappában lévő cshtml-ek a felhasználható alkotóelemek
+  - [X] Ezeket több helyről is meg lehet hivatkozni.
+
+### 5. házi feladat
+- a login oldal jobboldalának a magyarítása
+- Menu, MenuItem és Category többi oldalak magyarítása
+- lenyíló másféleképpen: FillAssignableCategories vegyen föl egy adatbázisban nem létező kategóriát, és ez legyen az első elem
+- DisplayTemplate használata a Table, Category és a MenuItem nézetekben
+
+### Kérdések
+- [DefaultValue] //todo: ez hogy működik?
+
+### 13. feladat
+- [X] EditorTemplate: az Edit nézet és a Create nézet ugyanazt előidéző megjelenítő kódját kiemelni egy külön állományba
+- [ ] Lenyílómező használata, ha az adatmodell LazyLoading-ot használ (virtual kulcsszó)
+  - [X] DisplayTemplate a közös megtekintő nézetekre (Details és Delete)
+  - [X] EditorTemplate a közös módosító nézetekre (Create és Edit)
+  - [X] A közös nézeteken lenyílómezővel módosítani
+        Ha ilyen hibaüzenetet kapunk:
+        ```
+        System.InvalidOperationException
+          HResult=0x80131509
+          Message=The ViewData item that has the key 'LocationId' is of type 'System.Int32' but must be of type 'IEnumerable<SelectListItem>'.
+          Source=System.Web.Mvc
+          StackTrace:
+           at System.Web.Mvc.Html.SelectExtensions.GetSelectData(HtmlHelper htmlHelper, String name)
+           at System.Web.Mvc.Html.SelectExtensions.SelectInternal(HtmlHelper htmlHelper, ModelMetadata metadata, String optionLabel, String name, IEnumerable`1 selectList, Boolean allowMultiple, IDictionary`2 htmlAttributes)
+           at System.Web.Mvc.Html.SelectExtensions.DropDownListFor[TModel,TProperty](HtmlHelper`1 htmlHelper, Expression`1 expression, IEnumerable`1 selectList, String optionLabel, IDictionary`2 htmlAttributes)
+           at System.Web.Mvc.Html.SelectExtensions.DropDownListFor[TModel,TProperty](HtmlHelper`1 htmlHelper, Expression`1 expression, IEnumerable`1 selectList, Object htmlAttributes)
+           at ASP._Page_Views_Shared_EditorTemplates_Table_cshtml.Execute() in D:\Repos\OopRestaurant201807\OopRestaurant201807\Views\Shared\EditorTemplates\Table.cshtml:line 19
+            (...)
+       ```
+       akkor a hiba oka az, hogy a lenyíló adattartalmát (jelen esetben AssignablesLocations nem inicializáltuk) 
+
+
+  - [X] A közös nézeteken lenyílómezővel megjeleníteni
+  
+
+
+A validálás különböző lehetséges pontjai: minden alkalommal validáljon az alkalmazás, és ahol lehet, ott védje magát az adatbázis is!
+
+```
+  Felület                                              Alkalmazás                                       Adatbázis
+
++----------------------+                             +-------------------+                            +----------------------+
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |   +--------------------->   |                   |    +-------------------->  |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
+|                      |                             |                   |                            |                      |
++----------------------+                             +-------------------+                            +----------------------+
+
+                  ^                                         ^                                             ^
+                  |                                         |                                             |
+                  |                                         |                                             |
+                  +                                         +                                             +
+
+            Validálás                                   Validálás                                      Validálás
+```
+
+### 14. feladat
+- [ ] hozzunk létre különböző jogosultságcsoportokat
+- [ ] hozzunk létre mindegyiknek felhasználót
+- [ ] igazítsuk az alkalmazás működését ennek megfelelően
+
+```
++----------------------------------------------------------------------------------------------------------------------+
+| Mindenki                                                                                                             |
+|                                                                                                                      |
+|                                                                                                                      |
+|                                        +-------------------------------------------------------------------------+   |
+|                                        | Bejelentkezett felhasználók                                             |   |
+|                                        |                                                                         |   |
+|                                        |                                                                         |   |
+|                                        |                                                                         |   |
+|                                        |                                                                         |   |
+|                                        |                                                                         |   |
+|                                        |   +----------------------------+   +------------------+  +------------+ |   |
+|                                        |   | Admin                      |   | Pincér           |  | Szakács    | |   |
+|                                        |   |                            |   |                  |  |            | |   |
+|                                        |   |                            |   |                  |  |            | |   |
+|                                        |   |                            |   |                  |  |            | |   |
+|                                        |   | Ő mindent tud              |   | Asztalokat       |  | Menüt      | |   |
+|                                        |   |                            |   | mozgathat        |  | írhat      | |   |
+|                                        |   |                            |   |                  |  |            | |   |
+|                                        |   |                            |   |                  |  |            | |   |
+|                                        |   |                            |   |                  |  |            | |   |
+|                                        |   |                            |   |                  |  |            | |   |
+|                                        |   |                            |   |                  |  |            | |   |
+|                                        |   |                            |   |                  |  |            | |   |
+|                                        |   |                            |   |                  |  |            | |   |
+|                                        |   +----------------------------+   +------------------+  +------------+ |   |
+|                                        |                                                                         |   |
+|                                        +-------------------------------------------------------------------------+   |
+|                                                                                                                      |
++----------------------------------------------------------------------------------------------------------------------+
+
+```
+
+
+### 6. házi feladat
+- A required bekpacsolása a Table.Location mezőn, adatbázisba írása és a következmények lekezelése mindenhol
+
+
+### Hibajavítás
+
+Ha ilyen hibába futtok a kód letöltése után:
+```
+PM> update-database
+& : File C:\Users\admin\Repos\OopRestaurant201807\packages\EntityFramework.6.2.0\tools\init.ps1 cannot be loaded because running scripts is disabled on this system. Fo
+r more information, see about_Execution_Policies at https:/go.microsoft.com/fwlink/?LinkID=135170.
+At line:1 char:45
++ ... rgs+=$_}; & 'C:\Users\admin\Repos\OopRestaurant201807\packages\Entity ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : SecurityError: (:) [], PSSecurityException
+    + FullyQualifiedErrorId : UnauthorizedAccess
+update-database : The term 'update-database' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or 
+if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ update-database
++ ~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (update-database:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+```
+
+Ez lehet egy megoldás:
+```
+Set-ExecutionPolicy -Scope CurrentUser Unrestricted
+```
+
+Visual Studióból kilépés és belépés, majd rebuild, és update-database.

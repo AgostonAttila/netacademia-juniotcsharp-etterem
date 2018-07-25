@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - OopRestaurant201807</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 
@@ -17,18 +17,22 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("OopRestaurant201807", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("OopRestaurant201807", "Index", "Menu", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Menu", "Index", "Menu")</li>
-                    @if (Request.IsAuthenticated)
+                    @if (Request.RequestContext.HttpContext.User.IsInRole("admin")
+                         || Request.RequestContext.HttpContext.User.IsInRole("cook"))
                     {
-                        <li>@Html.ActionLink("MenuItems", "Index", "MenuItems")</li>
+                        <li>@Html.ActionLink("Ételek", "Index", "MenuItems")</li>
+                        <li>@Html.ActionLink("Kategóriák", "Index", "Categories")</li>
                     }
-                    @if (Request.IsAuthenticated)
+                    @if (Request.RequestContext.HttpContext.User.IsInRole("admin")
+                         || Request.RequestContext.HttpContext.User.IsInRole("waiter"))
                     {
-                        <li>@Html.ActionLink("Categories", "Index", "Categories")</li>
+                        <li>@Html.ActionLink("Helyszínek", "Index", "Locations")</li>
+                        <li>@Html.ActionLink("Asztalok", "Index", "Tables")</li>
                     }
                 </ul>
                 @Html.Partial("_LoginPartial")
